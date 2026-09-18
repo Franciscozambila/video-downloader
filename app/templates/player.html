@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="hero">
+  <h1 class="hero-title">Reprodução de mídia</h1>
+  {% if video_info %}<p class="hero-subtitle">{{ video_info.title }}</p>{% endif %}
+</section>
+<div class="widget-card player-card">
+  {% if error %}
+    <p class="error-card" role="alert">{{ error }}</p>
+  {% elif stream_url %}
+    {% if video_info.thumbnail %}<img class="download-cover" src="{{ video_info.thumbnail }}" alt="{{ video_info.title }}">{% endif %}
+    <h2 class="widget-title">{{ video_info.title }}</h2>
+    <audio controls preload="metadata" class="media-player">
+      <source src="{{ stream_url }}" type="audio/{{ 'mpeg' if stream_info and stream_info.ext == 'mp3' else 'mp4' }}">
+      O seu navegador não suporta áudio.
+    </audio>
+    <a href="/download-page?url={{ video_url|urlencode }}" class="btn-search">Baixar este conteúdo</a>
+  {% else %}
+    <p class="empty-state">Não foi encontrada uma URL de reprodução.</p>
+  {% endif %}
+</div>
+{% endblock %}

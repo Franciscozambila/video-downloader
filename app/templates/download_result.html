@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="hero">
+  <h1 class="hero-title">{% if result %}Download concluído{% else %}Erro no download{% endif %}</h1>
+  <p class="hero-subtitle">{% if result %}O ficheiro foi processado pelo backend e está pronto.{% else %}Não foi possível concluir a operação.{% endif %}</p>
+</section>
+<div class="widget-card result-card">
+  {% if result %}
+    {% if result.thumbnail_filename %}<img class="download-cover" src="/files/{{ result.thumbnail_filename }}" alt="Thumbnail">{% endif %}
+    <h2 class="widget-title">{{ result.info.title }}</h2>
+    <p class="card-author">{{ result.filename }}</p>
+    <a href="{{ result.url }}" class="btn-search" download>Baixar ficheiro</a>
+  {% else %}
+    <p class="error-card" role="alert">{{ error }}</p>
+  {% endif %}
+  <a href="/" class="btn-card">Voltar ao início</a>
+</div>
+{% endblock %}

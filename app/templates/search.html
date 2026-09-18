@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="hero">
+  <div class="search-box-card">
+    <form action="/search" method="GET" class="results-search-form">
+      <div class="search-input-group">
+        <input type="search" name="q" value="{{ search_query }}" placeholder="Pesquisar no YouTube..." autocomplete="off" required>
+        <button type="submit" class="btn-search">Pesquisar</button>
+      </div>
+    </form>
+    <div class="search-suggestions" id="results-suggestions" hidden role="listbox" aria-label="Sugestões de pesquisa"></div>
+  </div>
+  <h1 class="hero-title">Resultados da pesquisa</h1>
+  <p class="hero-subtitle">Resultados reais do YouTube para: <strong>{{ search_query }}</strong></p>
+</section>
+
+{% if error %}
+<div class="widget-card error-card" role="alert">{{ error }}</div>
+{% else %}
+<div class="main-layout">
+  <section class="content-area">
+    {% if search_results %}
+    <p class="results-summary">{{ total_results }} resultados — página {{ current_page }} de {{ total_pages }}</p>
+    <div class="media-grid">
+      {% for item in search_results %}
+      <article class="media-card">
+        <div class="card-thumb">
+          {% set resolved_thumb = item.thumbnail or (item.thumbnails[-1].url if item.thumbnails and item.thumbnails|length else None) %}
+          {% if resolved_thumb %}<img src="{{ resolved_thumb }}" alt="{{ item.title }}" loading="lazy" referrerpolicy="no-referrer">{% endif %}
+          {% if item.duration %}<span class="duration-badge">{{ item.duration // 60 }}:{{ '%02d' % (item.duration % 60) }}</span>{% endif %}
+        </div>
+        <div class="card-body">
+          <h2 class="card-title">{{ item.title }}</h2>
+          <p class="card-author">{{ item.uploader or 'Canal não informado' }}</p>
+          <div class="card-meta">
+            {% if item.view_count %}<span>{{ '{:,}'.format(item.view_count) }} visualizações</span>{% endif %}
+          </div>
+          {% set platform_name = item.platform_name or item.platform or '' %}
+          {% if platform_name in ['Facebook', 'Instagram', 'TikTok', 'XVideos'] %}
+          <div class="card-actions">
+            <a href="/download-page?url={{ item.url|urlencode }}" class="btn-card primary">Baixar</a>
+          </div>
+          {% else %}
+          <div class="card-actions">
+            <a href="/player?url={{ item.url|urlencode }}" class="btn-card">Ouvir</a>
+            <a href="/download-page?url={{ item.url|urlencode }}" class="btn-card primary">Baixar</a>
+          </div>
+          {% endif %}
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="widget-card empty-state">Nenhum resultado encontrado. Tente outra pesquisa.</div>
+    {% endif %}
+
+    {% if total_pages > 1 %}
+    <nav class="pagination" aria-label="Paginação">
+      {% if current_page > 1 %}<a class="btn-card" href="/search?q={{ search_query|urlencode }}&page={{ current_page - 1 }}">Anterior</a>{% endif %}
+      <span>Página {{ current_page }} de {{ total_pages }}</span>
+      {% if current_page < total_pages %}<a class="btn-card primary" href="/search?q={{ search_query|urlencode }}&page={{ current_page + 1 }}">Próxima</a>{% endif %}
+    </nav>
+    {% endif %}
+  </section>
+
+  <aside class="sidebar">
+    <div class="widget-card">
+      <h3 class="widget-title">Plataformas suportadas</h3>
+      <div class="platforms-grid">
+        <span class="platform-pill platform-youtube">
+          <svg class="platform-logo" viewBox="0 0 24 24" aria-hidden="true"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8Z"/><path class="platform-logo-cutout" d="m9.6 15.5 5.9-3.5-5.9-3.5v7Z"/></svg>
+          <span>YouTube</span>
+        </span>
+        <span class="platform-pill platform-facebook">
+          <svg class="platform-logo" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 12a10 10 0 1 0-11.6 9.9v-7H7.9V12h2.5V9.8c0-2.5 1.5-3.9 3.8-3.9 1.1 0 2.2.2 2.2.2v2.4h-1.2c-1.2 0-1.6.8-1.6 1.6V12h2.7l-.4 2.9h-2.3v7A10 10 0 0 0 22 12Z"/></svg>
+          <span>Facebook</span>
+        </span>
+        <span class="platform-pill platform-instagram">
+          <svg class="platform-logo" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg>
+          <span>Instagram</span>
+        </span>
+        <span class="platform-pill platform-tiktok">
+          <svg class="platform-logo" viewBox="0 0 24 24" aria-hidden="true"><path d="M15.5 3c.3 2.2 1.5 3.5 3.5 3.7v3a8 8 0 0 1-3.5-1v6.1a5.2 5.2 0 1 1-4.5-5.1v3.1a2.2 2.2 0 1 0 1.5 2V3h3Z"/></svg>
+          <span>TikTok</span>
+        </span>
+        <span class="platform-pill platform-xvideos">
+          <svg class="platform-logo" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path class="platform-logo-cutout" d="m7.5 7.5 2.9 4.1-2.9 4.9h2.8l1.7-3.1 1.7 3.1h2.8l-2.9-4.9 2.9-4.1h-2.8L12 10.2 10.3 7.5H7.5Z"/></svg>
+          <span>XVideos</span>
+        </span>
+      </div>
+      <p class="empty-state">A deteção e os formatos disponíveis são confirmados pelo backend para cada URL.</p>
+    </div>
+  </aside>
+</div>
+{% endif %}
+{% endblock %}

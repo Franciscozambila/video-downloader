@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="hero">
+  <h1 class="hero-title">Opções de download</h1>
+  <p class="hero-subtitle">Escolha um formato e uma qualidade para o conteúdo real.</p>
+</section>
+
+{% if error %}<div class="widget-card error-card" role="alert">{{ error }}</div>{% endif %}
+{% if video_info %}
+<div class="widget-card download-config-card">
+  {% if video_info.thumbnail %}<img class="download-cover" src="{{ video_info.thumbnail }}" alt="{{ video_info.title }}">{% endif %}
+  <h2 class="widget-title">{{ video_info.title }}</h2>
+  <p class="card-author">{{ video_info.uploader or 'Canal não informado' }}</p>
+  <form action="/download" method="POST" class="download-form">
+    <input type="hidden" name="url" value="{{ video_url }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <label>Formato
+      <select name="file_type" id="download-file-type">
+        <option value="mp4">MP4 (vídeo)</option>
+        <option value="mp3">MP3 (áudio)</option>
+      </select>
+    </label>
+    <label>Qualidade
+      <select name="quality" id="download-quality">
+        <option value="best">Melhor qualidade</option>
+        <option value="1080p">1080p</option>
+        <option value="720p">720p</option>
+        <option value="480p">480p</option>
+        <option value="360p">360p</option>
+        <option value="320">320 kbps</option>
+        <option value="192">192 kbps</option>
+        <option value="128">128 kbps</option>
+      </select>
+    </label>
+    <button type="submit" class="btn-search">Iniciar download</button>
+  </form>
+</div>
+{% endif %}
+{% endblock %}
